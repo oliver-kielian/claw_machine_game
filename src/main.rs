@@ -11,6 +11,18 @@ fn main() {
 #[derive(Component)]
 struct Claw;
 
+#[derive(Component)]
+struct BallsGroup;
+
+#[derive(Component)]
+struct TopMachine;
+
+#[derive(Component)]
+struct RightMachine;
+
+#[derive(Component)]
+struct LeftMachine;
+
 
 fn setup(
     mut commands : Commands,
@@ -18,6 +30,8 @@ fn setup(
 ){
     let text_handle_top = asset_server.load("background/topMachine.png");
     let text_handle_bottom = asset_server.load("background/bottomMachine.png");
+    let text_handle_right = asset_server.load("background/rightMachine");
+    let text_handle_left = asset_server.load("background/leftMachine");
     let text_handle_shadow_balls = asset_server.load("background/shadowBall.png");
     let text_handle_balls_group = asset_server.load("background/ballsGroup.png");
 
@@ -27,55 +41,83 @@ fn setup(
     commands.spawn(Camera2dBundle{
         ..default()
     });
-    commands.spawn(SpriteBundle{
+    
+    commands.spawn(
+        (SpriteBundle{
         texture: text_handle_top,
-        sprite: Sprite {
-            custom_size: Some(Vec2::new(700.0, 700.0)),
+        transform: Transform {
+            scale: Vec3::splat(0.2), 
+            translation: Vec3::new(0.0, 0.0, 1.0),
             ..default()
         },
-        transform: Transform::from_translation(Vec3::new(0.0, 0.0, 1.0)),
         ..default()
-    });
+    },
+    TopMachine));
 
 
     commands.spawn(SpriteBundle{
         texture: text_handle_shadow_balls,
-        sprite: Sprite {
-            custom_size: Some(Vec2::new(700.0, 700.0)), 
+        transform: Transform {
+            scale: Vec3::splat(0.2), 
+            translation: Vec3::new(0.0, 0.0, -2.0),
             ..default()
         },
-        transform: Transform::from_translation(Vec3::new(0.0, 0.0, -2.0)),
         ..default()
     });
 
-    commands.spawn(SpriteBundle{
+    commands.spawn(
+        (SpriteBundle{
         texture: text_handle_balls_group,
-        sprite: Sprite {
-            custom_size: Some(Vec2::new(700.0, 700.0)), 
+        transform: Transform {
+            scale: Vec3::splat(0.2), 
+            translation: Vec3::new(0.0, 0.0, 1.0),
             ..default()
         },
-        transform: Transform::from_translation(Vec3::new(0.0, 0.0, 1.0)),
         ..default()
-    });
+    },
+    BallsGroup));
+
+    commands.spawn((SpriteBundle{
+        texture: text_handle_left,
+        transform: Transform {
+            scale: Vec3::splat(0.2), 
+            translation: Vec3::new(0.0, 0.0, 1.0),
+            ..default()
+        },
+        ..default()
+    },
+    LeftMachine));
+
+    commands.spawn((SpriteBundle{
+        texture: text_handle_right,
+        transform: Transform {
+            scale: Vec3::splat(0.2), 
+            translation: Vec3::new(0.0, 0.0, 1.0),
+            ..default()
+        },
+        ..default()
+    },
+    RightMachine));
+
 
     commands.spawn(SpriteBundle{
         texture: text_handle_bottom,
-        sprite: Sprite {
-            custom_size: Some(Vec2::new(700.0, 700.0)), 
+        transform: Transform {
+            scale: Vec3::splat(0.2), 
+            translation: Vec3::new(0.0, -200.0, 1.0),
             ..default()
         },
-        transform: Transform::from_translation(Vec3::new(0.0, 0.0, 1.0)),
         ..default()
     });
 
     commands.spawn((
         SpriteBundle{
         texture: text_handle_claw_closed,
-        sprite: Sprite {
-            custom_size: Some(Vec2::new(700.0, 700.0)), 
+        transform: Transform {
+            scale: Vec3::splat(0.2), 
+            translation: Vec3::new(0.0, 0.0, -1.0),
             ..default()
         },
-        transform: Transform::from_translation(Vec3::new(0.0, 0.0, -1.0)),
         ..default()
     },
     Claw
@@ -107,3 +149,11 @@ fn move_claw(mut query: Query<&mut Transform, With<Claw>>,
         tr.translation.y += speed * time.delta_seconds();
     }
 }
+/* 
+pub clawColisions(
+    mut claw_query: Query<(Entity, &Transform), With<Claw>>,
+    mut top_query: Query<&Transform, With<TopMachine>>,
+    mut sides_query: Query<&Transform, With<BottomMachine>>,
+    mut balls_query: Query<&Transform, with<BallsGroup>>
+)
+*/
