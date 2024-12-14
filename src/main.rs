@@ -71,7 +71,10 @@ fn setup(
     commands.spawn(Camera2dBundle{
         ..default()
     });
-    
+    commands.spawn(AudioBundle{
+        source: asset_server.load("audio/music.mp3"),
+        settings: PlaybackSettings::LOOP,
+    });
     commands.spawn(
         (SpriteBundle{
         texture: text_handle_top,
