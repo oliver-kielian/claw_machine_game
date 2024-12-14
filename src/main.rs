@@ -22,6 +22,7 @@ fn main() {
     .add_systems(Update, close_claw)
     .add_systems(Update, spawn_ball)
     .add_systems(Update, move_ball)
+    .add_systems(Update, drop_ball)
     .run();
 }
 
@@ -72,7 +73,7 @@ impl Default for BallState {
 }
 
 #[derive(Component)]
-struct BallTimer(Timer);
+pub struct BallTimer(Timer);
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     let text_handle_top = asset_server.load("background/topMachine.png");
@@ -341,7 +342,7 @@ pub fn spawn_ball(
 
         let random_index = rand::thread_rng().gen_range(0..6);
 
-        
+
 
         if let Ok(claw_transform) = claw_query.get_single_mut() {
 
@@ -363,6 +364,7 @@ pub fn spawn_ball(
                 index: random_index,
             },
                 Ball,
+                BallTimer(Timer::from_seconds(5.0, TimerMode::Once))
             ));
 
             ball_state.is_attached = true;
@@ -372,15 +374,38 @@ pub fn spawn_ball(
 }
 
 pub fn move_ball(
-    mut ball_query: Query<&mut Transform, (With<Ball>, Without<Claw>)>,
+    mut ball_query: Query<(&mut Transform, &mut BallTimer), (With<Ball>, Without<Claw>)>,
     claw_query: Query<&Transform, With<Claw>>,
+    time: Res<Time>,
+    mut ball_state: ResMut<BallState>
 ) {
-    // Logic for moving the ball
-    for mut ball_transform in ball_query.iter_mut() {
-        // Move the ball with the claw's position
+    for (mut ball_transform, mut timer) in ball_query.iter_mut() {
+        // Update the ball's position based on the claw's position when attached
         if let Ok(claw_transform) = claw_query.get_single() {
-            ball_transform.translation.x = claw_transform.translation.x;
-            ball_transform.translation.y = claw_transform.translation.y - BALLOFFSET;
+            if ball_state.is_attached {
+                // Move with the claw when attached
+                ball_transform.translation.x = claw_transform.translation.x;
+                ball_transform.translation.y = claw_transform.translation.y - BALLOFFSET;
+
+                timer.0.tick(time.delta());
+                // After the timer finishes, the ball detaches
+                if timer.0.finished() {
+                    ball_state.is_attached = false;
+                }
+            }
+        }
+    }
+}
+
+pub fn drop_ball(
+    mut ball_query: Query<&mut Transform, With<Ball>>,
+    time: Res<Time>,
+    ball_state: Res<BallState>
+) {
+    if !ball_state.is_attached {
+        // Drop the ball if it's not attached
+        for mut transform in ball_query.iter_mut() {
+            transform.translation.y -= SPEED * time.delta_seconds();
         }
     }
 }
