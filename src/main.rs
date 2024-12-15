@@ -527,7 +527,7 @@ pub fn win_cat(
                     layout: texture_atlas_layout,
                     index: 0,
                 },
-                CatUI
+                CatUI,
             ));
             });
         });
@@ -543,8 +543,6 @@ pub fn depawn_cat(
     cat_query: Query<Entity, With<CatUI>>
 ){
     if keyboard_input.just_pressed(KeyCode::Enter){
-
-        println!("Enter key pressed. Trying to despawn cat entities.");
 
         for cat_ui in cat_query.iter() {
             commands.entity(cat_ui).despawn();
