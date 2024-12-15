@@ -10,9 +10,11 @@ const BALLOFFSET: f32 = 90.0;
 
 fn main() {
     App::new()
-    .add_plugins(DefaultPlugins)
+    .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
      .insert_resource(ClawState::default())
      .insert_resource(BallState::default())
+     .insert_resource(Game::default())
+     .insert_resource(ClearColor(Color::srgb(0.768, 0.643, 0.518)))
     .add_systems(Startup, setup)
     .add_systems(Update, move_claw)
     .add_systems(Update, claw_collisions)
@@ -23,6 +25,8 @@ fn main() {
     .add_systems(Update, spawn_ball)
     .add_systems(Update, move_ball)
     .add_systems(Update, drop_ball)
+    .add_systems(Update, win_cat)
+    .add_systems(Update, depawn_cat)
     .run();
 }
 
@@ -62,6 +66,16 @@ struct LeftMachine;
 pub struct Ball;
 
 #[derive(Resource)]
+pub struct Game{
+    win : bool
+}
+
+impl Default for Game {
+    fn default() -> Self {
+        Game { win: false}
+    }
+}
+#[derive(Resource)]
 pub struct BallState {
     is_attached: bool,
 }
@@ -74,6 +88,9 @@ impl Default for BallState {
 
 #[derive(Component)]
 pub struct BallTimer(Timer);
+
+#[derive(Component)]
+pub struct CatUI;
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     let text_handle_top = asset_server.load("background/topMachine.png");
@@ -349,6 +366,9 @@ pub fn spawn_ball(
             let claw_y = claw_transform.translation.y;
             let claw_x = claw_transform.translation.x;
 
+            let mut rng = rand::thread_rng();
+            let random_time = rng.gen_range(1.0..5.0);
+
             commands.spawn((
                 SpriteBundle {
                 texture: ball_handle,
@@ -364,7 +384,7 @@ pub fn spawn_ball(
                 index: random_index,
             },
                 Ball,
-                BallTimer(Timer::from_seconds(5.0, TimerMode::Once))
+                BallTimer(Timer::from_seconds(random_time, TimerMode::Once))
             ));
 
             ball_state.is_attached = true;
@@ -380,15 +400,12 @@ pub fn move_ball(
     mut ball_state: ResMut<BallState>
 ) {
     for (mut ball_transform, mut timer) in ball_query.iter_mut() {
-        // Update the ball's position based on the claw's position when attached
         if let Ok(claw_transform) = claw_query.get_single() {
             if ball_state.is_attached {
-                // Move with the claw when attached
                 ball_transform.translation.x = claw_transform.translation.x;
                 ball_transform.translation.y = claw_transform.translation.y - BALLOFFSET;
 
                 timer.0.tick(time.delta());
-                // After the timer finishes, the ball detaches
                 if timer.0.finished() {
                     ball_state.is_attached = false;
                 }
@@ -398,14 +415,139 @@ pub fn move_ball(
 }
 
 pub fn drop_ball(
-    mut ball_query: Query<&mut Transform, With<Ball>>,
+    mut commands: Commands,
+    mut ball_query: Query<(Entity, &mut Transform), With<Ball>>,
     time: Res<Time>,
-    ball_state: Res<BallState>
+    ball_state: Res<BallState>,
+    mut game: ResMut<Game>
 ) {
     if !ball_state.is_attached {
-        // Drop the ball if it's not attached
-        for mut transform in ball_query.iter_mut() {
+        for (ball, mut transform) in ball_query.iter_mut() {
             transform.translation.y -= SPEED * time.delta_seconds();
+            transform.translation.z = 0.0;
+
+            if transform.translation.y <= -240.0{
+                transform.translation.y = -240.0;
+                if transform.translation.x >= -235.0 && transform.translation.x <= -30.0
+                {
+                    game.win = true;
+                }
+                commands.entity(ball).despawn();
+            }
+        }
+    }
+}
+
+pub fn win_cat(
+    mut commands: Commands,
+    mut game: ResMut<Game>,
+    asset_server: Res<AssetServer>,
+    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
+){
+    if game.win{
+        let cat_handle = asset_server.load("PirateCats/PirateCat1.png");
+
+        let layout = TextureAtlasLayout::from_grid(UVec2::splat(32), 8, 1, None, None);
+        let texture_atlas_layout = texture_atlas_layouts.add(layout);
+        
+        
+        commands.spawn((NodeBundle {
+            style: Style {
+                width: Val::Percent(100.0),  
+                height: Val::Percent(100.0), 
+                flex_direction: FlexDirection::Column,
+                justify_content: JustifyContent::Center,  
+                align_items: AlignItems::Center,          
+                ..default()
+            },
+            transform: Transform {
+                translation: Vec3::new(0.0, 0.0, 0.0), 
+                ..default()
+            },
+            background_color: BackgroundColor(Color::NONE),
+            z_index: ZIndex::Global(-1),
+            ..default()
+        },
+        CatUI
+    ))
+        .with_children(|parent| {
+            parent.spawn((NodeBundle {
+                style: Style {
+                    width: Val::Percent(50.0), 
+                    height: Val::Percent(50.0),
+                    flex_direction: FlexDirection::Column,
+                    justify_content: JustifyContent::Center, 
+                    align_items: AlignItems::Center,         
+                    border: UiRect::all(Val::Px(5.)),
+                    ..default()
+                },
+                background_color: BackgroundColor(Color::srgb(0.361, 0.251, 0.200)),
+                border_radius: BorderRadius::new(
+                    Val::Px(40.),
+                    Val::Px(40.),
+                    Val::Px(40.),
+                    Val::Px(40.),
+                ),
+                border_color: BorderColor(Color::srgb(0., 0., 0.)),
+                transform: Transform {
+                    translation: Vec3::new(0.0, 0.0, 0.0), 
+                    ..default()
+                },
+                
+                z_index: ZIndex::Global(-1),
+                ..default()
+                
+            },
+            CatUI
+        ))
+            .with_children(|parent| {
+                parent.spawn((ImageBundle {
+                    style: Style {
+                        width: Val::Px(32.0),
+                        height: Val::Px(32.0),
+                        flex_direction: FlexDirection::Column,
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..default()
+                    },
+                    image: UiImage{
+                        texture: cat_handle,
+                        ..default()
+                    },
+                    background_color: BackgroundColor(Color::NONE),
+                    transform: Transform {
+                        scale: Vec3::splat(8.0),
+                        translation: Vec3::new(0.0, 0.0, 1.0),
+                        ..default()
+                    },
+                    z_index: ZIndex::Global(1), 
+                    ..default()
+                },
+                TextureAtlas {
+                    layout: texture_atlas_layout,
+                    index: 0,
+                },
+                CatUI
+            ));
+            });
+        });
+
+        game.win = false;
+    }
+}
+
+
+pub fn depawn_cat(
+    mut commands: Commands,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
+    cat_query: Query<Entity, With<CatUI>>
+){
+    if keyboard_input.just_pressed(KeyCode::Enter){
+
+        println!("Enter key pressed. Trying to despawn cat entities.");
+
+        for cat_ui in cat_query.iter() {
+            commands.entity(cat_ui).despawn();
         }
     }
 }
