@@ -27,6 +27,7 @@ fn main() {
     .add_systems(Update, drop_ball)
     .add_systems(Update, win_cat)
     .add_systems(Update, depawn_cat)
+    .add_systems(Update, animate_cat)
     .run();
 }
 
@@ -91,6 +92,22 @@ pub struct BallTimer(Timer);
 
 #[derive(Component)]
 pub struct CatUI;
+
+
+#[derive(Component)]
+pub struct Cat;
+
+#[derive(Component)]
+pub struct CatIndices{
+    first: usize,
+    last: usize
+}
+
+#[derive(Component)]
+pub struct AnimationTimer(Timer);
+
+#[derive(Component)]
+pub struct HelpText;
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     let text_handle_top = asset_server.load("background/topMachine.png");
@@ -208,14 +225,6 @@ fn move_claw(
 
     if keyboard_input.pressed(KeyCode::ArrowRight) {
         tr.translation.x += SPEED * time.delta_seconds();
-    }
-
-    if keyboard_input.pressed(KeyCode::ArrowDown) {
-        tr.translation.y -= SPEED * time.delta_seconds();
-    }
-
-    if keyboard_input.pressed(KeyCode::ArrowUp) {
-        tr.translation.y += SPEED * time.delta_seconds();
     }
 }
 
@@ -445,11 +454,23 @@ pub fn win_cat(
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ){
     if game.win{
-        let cat_handle = asset_server.load("PirateCats/PirateCat1.png");
+
+        let random_cat = rand::thread_rng().gen_range(0..2);
+
+        let cat_array = ["PirateCats/PirateCat1.png", "PirateCats/PirateCat2.png"];
+        let cat_handle = asset_server.load(cat_array[random_cat]);
 
         let layout = TextureAtlasLayout::from_grid(UVec2::splat(32), 8, 1, None, None);
         let texture_atlas_layout = texture_atlas_layouts.add(layout);
         
+        let cat_indices: CatIndices;
+      if random_cat == 0{
+        cat_indices = CatIndices{first: 0, last: 6};
+      }
+      else{
+        cat_indices = CatIndices{first: 0, last: 2};
+      }
+
         
         commands.spawn((NodeBundle {
             style: Style {
@@ -477,7 +498,7 @@ pub fn win_cat(
                     height: Val::Percent(50.0),
                     flex_direction: FlexDirection::Column,
                     justify_content: JustifyContent::Center, 
-                    align_items: AlignItems::Center,         
+                    align_items: AlignItems::Center,       
                     border: UiRect::all(Val::Px(5.)),
                     ..default()
                 },
@@ -528,10 +549,49 @@ pub fn win_cat(
                     index: 0,
                 },
                 CatUI,
+                cat_indices,
+                AnimationTimer(Timer::from_seconds(0.1, TimerMode::Repeating)),
+                Cat
             ));
+
+            parent.spawn((NodeBundle {
+                style: Style {
+                    height: Val::Px(20.0),
+                    ..default()
+                },
+                background_color: BackgroundColor(Color::NONE),
+                ..default()
+            },
+            CatUI
+        ));
+        
+
+            parent.spawn(
+                (TextBundle{
+                    style: Style{
+                        margin: UiRect {
+                            top: Val::Px(100.0),
+                            ..default()
+                        },
+                        align_self: AlignSelf::Center,
+                        ..default()
+                    },
+                    text: Text::from_section("YOU WIN! PRESS ENTER TO KEEP PLAYING", TextStyle::default()),
+                    z_index: ZIndex::Global(2),
+                    ..default()
+                },
+            CatUI));
             });
         });
 
+
+        commands.spawn(AudioBundle {
+            source: asset_server.load("audio/catMeow.mp3"),
+            settings: PlaybackSettings{
+                mode: bevy::audio::PlaybackMode::Despawn,
+              ..default()
+            },
+        });
         game.win = false;
     }
 }
@@ -546,6 +606,23 @@ pub fn depawn_cat(
 
         for cat_ui in cat_query.iter() {
             commands.entity(cat_ui).despawn();
+        }
+    }
+}
+
+pub fn animate_cat(
+    time: Res<Time>,
+    mut query: Query<(&CatIndices, &mut AnimationTimer, &mut TextureAtlas), With<Cat>>
+)
+{   
+    for(indices, mut timer, mut atlas) in &mut query{
+        timer.0.tick(time.delta());
+        if timer.0.just_finished(){
+            atlas.index = if atlas.index == indices.last{
+                indices.first
+            }else{
+                atlas.index+1
+            }
         }
     }
 }
