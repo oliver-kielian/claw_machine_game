@@ -4,8 +4,8 @@ use rand::Rng;
 use super::componets::*;
 use super::resources::*;
 
-use crate::claw::componets::*;
-use crate::claw::resources::*;
+use crate::game::claw::componets::*;
+use crate::game::claw::resources::*;
 
 const BALLOFFSET: f32 = 90.0;
 const SPEED: f32 = 200.0;

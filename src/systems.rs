@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::claw::componets::*;
+use crate::game::claw::componets::*;
 
 pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     let text_handle_top = asset_server.load("background/topMachine.png");

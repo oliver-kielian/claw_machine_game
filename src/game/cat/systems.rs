@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use rand::Rng;
 
 use super::componets::*;
-use crate::ball::resources::Game;
+use crate::game::ball::resources::Game;
 
 pub fn win_cat(
     mut commands: Commands,
