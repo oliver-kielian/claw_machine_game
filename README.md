@@ -8,6 +8,8 @@ Final for my CS 310 class, Programming Projects in X (Rust). One option for a fi
 and the likely uprise of using Rust in game development. This game is a simple Claw Machine game who's puprose is both a passing grade and to learn the mechanics of bevy. The main features include the machine, the claw, the balls, and the cats. 
 The game logic is also included.
 
+
+
 HOW TO PLAY:
 Upon running the app, you will be greeted with low bit arcade music and a claw machine. To the left there will be simple directions describing how to play. I will put them more in depth here.
 
@@ -25,9 +27,13 @@ Failure to drop the ball into the return area will result in nothing happening. 
 Press enter to dismiss the box and to keep playing.
 
 
-Useage:
+
+
+USE:
 People can use this code to play a simple game, build off to create a more complex claw machine game, or to attempt to better understand bevy themselves. Since a new version was released before I could finish this project
 I recommned looking at https://bevyengine.org/learn/migration-guides/0-14-to-0-15/ to migrate this code to 0.15 if you are looking at it before I get a chance to.
+
+
 
 Sources:
 
