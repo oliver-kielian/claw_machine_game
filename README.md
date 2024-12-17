@@ -1,4 +1,4 @@
-#Claw machine Game
+#Claw machine Game Bevy 0.14.2
 
 NOTE:
 Bevy did have an update(0.15) as I was creating this. I made the decsion for this project I would stick with 0.14.2 as I am still new and don't want to risk loosing progress to try an change my current code to reflect this update.
