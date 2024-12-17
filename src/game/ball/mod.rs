@@ -6,8 +6,11 @@ mod systems;
 
 use resources::*;
 use systems::*;
+
+///Struct that allows for better orginization
 pub struct BallPlugin;
 
+///Implimentation of the Plugin trait for BallPlugin, this allows all relevant resources and systems to be added to the main app
 impl Plugin for BallPlugin{
     fn build(&self, app: &mut App) {
         app.insert_resource(BallState::default())

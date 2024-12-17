@@ -10,6 +10,10 @@ use crate::game::claw::resources::*;
 const BALLOFFSET: f32 = 90.0;
 const SPEED: f32 = 200.0;
 
+
+///Function that spawns in a ball when the claw reaches the bottom of my machine.
+/// This function also sets the timer to a random number between 1 and 5. The timer is in seconds and only runs once.
+/// Updates the BallState::is_attached resource to true
 pub fn spawn_ball(
     mut claw_query: Query<&Transform, With<Claw>>,
     claw_state: Res<ClawState>,
@@ -60,6 +64,10 @@ pub fn spawn_ball(
 
 }
 
+
+///Move's the ball in accordance to the claw while the ball is still attached.
+/// Increments the timer as well. 
+/// Once the timer is finshed BallState::is_attached is set to false
 pub fn move_ball(
     mut ball_query: Query<(&mut Transform, &mut BallTimer), (With<Ball>, Without<Claw>)>,
     claw_query: Query<&Transform, With<Claw>>,
@@ -81,6 +89,10 @@ pub fn move_ball(
     }
 }
 
+///Controls the speed of the ball falling.
+/// Updates the z index so the ball appears in front of the group of balls
+/// Updates Game::win to true if the ball is dropped within the x coordinates of the return box.
+/// Despwans the ball
 pub fn drop_ball(
     mut commands: Commands,
     mut ball_query: Query<(Entity, &mut Transform), With<Ball>>,

@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 
-use crate::game::claw::componets::*;
+use crate::game::claw::componets::Claw;
+
+///Setup function that spawns all needed components in. The machine and claw.
+/// Other componets are spawned in later.
 
 pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     let text_handle_top = asset_server.load("background/topMachine.png");
@@ -19,7 +22,7 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         settings: PlaybackSettings::LOOP,
     });
 
-    commands.spawn((
+    commands.spawn(
         SpriteBundle {
         texture: text_handle_top,
         transform: Transform {
@@ -28,9 +31,8 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         },
         ..default()
-    },
-        TopMachine,
-    ));
+    }
+    );
  
     commands.spawn(SpriteBundle {
         texture: text_handle_shadow_balls,
@@ -42,7 +44,7 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         ..default()
     });
 
-    commands.spawn((
+    commands.spawn(
         SpriteBundle {
         texture: text_handle_balls_group,
         transform: Transform {
@@ -51,11 +53,9 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         },
         ..default()
-    },
-        BallsGroup,
-    ));
+    });
 
-    commands.spawn((
+    commands.spawn(
         SpriteBundle {
         texture: text_handle_left,
         transform: Transform {
@@ -64,11 +64,9 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         },
         ..default()
-    },
-        LeftMachine,
-    ));
+    });
 
-    commands.spawn((
+    commands.spawn(
         SpriteBundle {
         texture: text_handle_right,
         transform: Transform {
@@ -77,9 +75,7 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         },
         ..default()
-    },
-        RightMachine,
-    ));
+    });
 
     commands.spawn(SpriteBundle {
         texture: text_handle_bottom,

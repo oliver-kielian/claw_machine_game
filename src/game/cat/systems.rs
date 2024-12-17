@@ -4,6 +4,10 @@ use rand::Rng;
 use super::componets::*;
 use crate::game::ball::resources::Game;
 
+///If Game::win is true, picks a random cat to display.
+/// Spawns a NodeBundle that holds a child node.
+/// The child node holds the Image of the Cat and Text explaining what has happened and how to continue playing.
+/// Audio of a cat is meowing is also spwaned for extra effect.
 pub fn win_cat(
     mut commands: Commands,
     mut game: ResMut<Game>,
@@ -154,6 +158,7 @@ pub fn win_cat(
 }
 
 
+///Despawns the cat upon the press of the enter key
 pub fn depawn_cat(
     mut commands: Commands,
     keyboard_input: Res<ButtonInput<KeyCode>>,
@@ -167,6 +172,8 @@ pub fn depawn_cat(
     }
 }
 
+///Animates the cat based on CatIndices, AnimiationTimer, and TextureAtlas
+/// Only grabs the objects that have the Cat Componet 
 pub fn animate_cat(
     time: Res<Time>,
     mut query: Query<(&CatIndices, &mut AnimationTimer, &mut TextureAtlas), With<Cat>>

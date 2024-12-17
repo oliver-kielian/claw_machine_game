@@ -2,13 +2,15 @@ use bevy::prelude::*;
 
 use super::componets::*;
 use super::resources::*;
+/// The claw is controlled from the center of the sprite 
 
-const X_MAX: f32 = 150.0;
-const X_MIN: f32 = -150.0;
-const Y_MAX: f32 = 200.0;
-const Y_MIN: f32 = 60.0;
-const SPEED: f32 = 200.0;
+const X_MAX: f32 = 150.0; //the max x value (how far to the right) the claw can go
+const X_MIN: f32 = -150.0; //the min x value (how far to the left) the claw can go
+const Y_MAX: f32 = 200.0; //the max y value (how far up) the claw can go
+const Y_MIN: f32 = 60.0; //the min y value (how far down) the claw can go
+const SPEED: f32 = 200.0; //The speed of the claw and the ball
 
+///Allows user input to move the claw to the left or to the right based on which arrow key is pressed
 pub fn move_claw(
     mut query: Query<&mut Transform, With<Claw>>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
@@ -25,6 +27,7 @@ pub fn move_claw(
     }
 }
 
+///Keeps the claw within the bound of the machine based of the constant values found at the top of this file
 pub fn claw_collisions(mut claw_query: Query<(Entity, &mut Transform), With<Claw>>) {
     if let Ok((_claw_entity, mut claw_transform)) = claw_query.get_single_mut() {
         let mut translation = claw_transform.translation;
@@ -44,7 +47,8 @@ pub fn claw_collisions(mut claw_query: Query<(Entity, &mut Transform), With<Claw
         claw_transform.translation = translation;
     }
 }
-
+///Function that drops the claw to create the illusion of a ball being grabbed.
+/// Changes the ClawState::is_moving to true and changes the postion of the claw to the bottom of the machine by updating ClawState::up to false and ClawState::down to true
 pub fn drop_claw(
     mut query: Query<(&mut Transform, &Claw)>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
@@ -67,6 +71,8 @@ pub fn drop_claw(
 }
 }
 
+//Function that raises the claw after being dropped
+/// Changes the ClawState::is_moving to true and changes the postion of the claw to the bottom of the machine by updating ClawState::up to true and ClawState::down to false
 pub fn raise_claw(
     mut query: Query<(&mut Transform, &Claw)>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
@@ -89,6 +95,9 @@ pub fn raise_claw(
 }
 }
 
+
+///Function to open the claw, it replaces the current closed sprite with a new open sprite
+/// This happens by spawning the new sprite then despawning the old sprite.
 pub fn open_claw(
     mut commands: Commands,
     mut claw_query: Query<(Entity, &Transform), With<Claw>>,
@@ -119,6 +128,8 @@ pub fn open_claw(
 }
 }
 
+///Function to close the claw, it replaces the current open sprite with a new closed sprite
+/// This happens by spawning the new sprite then despawning the old sprite.
 pub fn close_claw(
     mut commands: Commands,
     mut claw_query: Query<(Entity, &Transform), With<Claw>>,

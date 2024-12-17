@@ -10,6 +10,7 @@ mod systems;
 use crate::systems::setup;
 
 fn main() {
+    //Creation of the app with all Plugins
     App::new()
     .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
     .add_plugins(GamePlugin)

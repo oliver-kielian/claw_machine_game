@@ -2,6 +2,7 @@ use::bevy::prelude::*;
 
 use super::componets::*;
 
+///Function that spawns helpful text on how to play the game
 pub fn move_claw_text(
     mut commands: Commands
 ){
@@ -42,7 +43,8 @@ pub fn move_claw_text(
 
 }
 
-
+///Function that depsawns that text are keybaord inputs
+/// If the left or right arrows keys or space bar are pressed then the text despawns.
 pub fn despawn_help_text(
     mut commands: Commands,
     query_side: Query<Entity, With<HelpTextLeftRight>>,

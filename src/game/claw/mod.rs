@@ -6,8 +6,13 @@ pub mod resources;
 
 use systems::*;
 use resources::*;
+
+///Plugin to allow for better orginization
 pub struct ClawPlugin;
 
+
+///Impliments Plugin trait for Claw
+/// Insets the relevant systems and resources to the app
 impl Plugin for ClawPlugin{
     fn build(&self, app: &mut App) {
         app.insert_resource(ClawState::default())
