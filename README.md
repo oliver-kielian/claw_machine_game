@@ -66,3 +66,8 @@ Code:
     https://www.youtube.com/watch?v=iW19V3a96tYc
     https://docs.rs/bevy/0.14.2/bevy/prelude/struct.TextBundle.html#structfield.text
     https://www.youtube.com/watch?v=gy2G63SA-W8&list=PLVnntJRoP85JHGX7rGDu6LaF3fmDDbqyd&index=7
+
+    
+    License:
+
+    This project has a simple MIT License
