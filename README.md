@@ -67,6 +67,7 @@ Code:
     https://docs.rs/bevy/0.14.2/bevy/prelude/struct.TextBundle.html#structfield.text
     https://www.youtube.com/watch?v=gy2G63SA-W8&list=PLVnntJRoP85JHGX7rGDu6LaF3fmDDbqyd&index=7
     https://westernstatecoloradou-my.sharepoint.com/:w:/g/personal/oliver_kielian_western_edu/EaoaWiRo8N5Io_DrRof8_KAB2U20i7IZLc8KCyqD2qBQGw?e=DbxDsw
+    https://github.com/bevyengine/bevy/blob/main/tests/how_to_test_apps.rs
 
     
     License:
